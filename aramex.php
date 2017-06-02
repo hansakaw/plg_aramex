@@ -4,7 +4,9 @@ defined ('_JEXEC') or die('Restricted access');
 if (!class_exists ('vmPSPlugin')) {
 	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
 }
-
+if (!defined('WSDL_PATH')) {
+	define('WSDL_PATH', dirname(__FILE__).DS.'wsdl'.DS);
+}
 class plgVmShipmentAramex extends vmPSPlugin {
 	/**
 	 * @param object $subject
@@ -297,9 +299,9 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			);
 
 		if($method->ship_mode) //live mode
-			$soapClient = new SoapClient(JURI::root().'plugins/vmshipment/aramex/shipping-services-api-wsdl.wsdl');
+			$soapClient = new SoapClient(WSDL_PATH.'shipping-services-api.wsdl');
 		else//test mode
-			$soapClient = new SoapClient(JURI::root().'plugins/vmshipment/aramex/shipping-services-api-wsdl_test.wsdl');
+			$soapClient = new SoapClient(WSDL_PATH.'shipping-services-api-test.wsdl');
 		
 		$auth_call = $soapClient->CreateShipments($major_par);	
 
@@ -532,17 +534,18 @@ class plgVmShipmentAramex extends vmPSPlugin {
 										'CurrencyCode'			 => $currency->_vendorCurrency_code_3
 									),
 			);
-		
+
 			if($method->ship_mode) //live mode
 			{
-				$soapClient = new SoapClient(JURI::root().'plugins/vmshipment/aramex/aramex-rates-calculator-wsdl.wsdl', array('trace' => 1));
+				$soapClient = new SoapClient(WSDL_PATH.'rates-calculator.wsdl', array('trace' => 1));
 			}
 			else
 			{
-				$soapClient = new SoapClient(JURI::root().'plugins/vmshipment/aramex/aramex-rates-calculator-wsdl_test.wsdl', array('trace' => 1));
+				$soapClient = new SoapClient(WSDL_PATH.'rates-calculator-test.wsdl', array('trace' => 1));
 			}
 
 			$results = $soapClient->CalculateRate($params);	
+
 			if($results->HasErrors)
 			{
 				if(count($results->Notifications->Notification) > 1)
