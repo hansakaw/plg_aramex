@@ -12,7 +12,7 @@ script:
 
 deploy:
   provider: releases
-  api_key: "0c3354f7c3a4e98620f06408ceaad64aece27cdb"
+  api_key: "1090e00be94a6e391c6f677beba308acb6c2467e"
   skip_cleanup: true
   overwrite: true
   on:
