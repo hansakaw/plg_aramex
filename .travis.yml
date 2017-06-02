@@ -5,14 +5,16 @@ php:
 
 env:
   global:
-    - RUN_UNIT_TESTS="no"
+  - RUN_UNIT_TESTS="no"
+  - secure: Wo1PkljNmTurHo7NFeFAz81MCCi/QeOsz2Y6R9cDWsuHz4IuaSG77MJFrLhKmRU+8DPnJfE/YsaRiFjxUCQ3lol9ii52Z5M1pnDEHLFwMfQYSH1BM3AIDjjUSLy4BVTTheDC3xkEDOgOTi+H15+Vh31/CwTJUxLugrY4Oe8ja7XDZ8WV4eUZLXc8eqYG5rzqXNXAbu7OHlPv4q4xyOl7IqE/ngCMwiENYa9QPWM8BsZ/oWWR80GzUer81p9selbd5cO98mV/T90fnJTZnwoh+HBM9APkfy20oK7pF3pQPjiC0nvYzIxYL9y0liw5qXcm/SEyChI6FMgUKIHeUMWOimAbj+XWCbQlhsipbBEPQD8SMpSwn/0bH5AzRiBs/Ulwun8eEmbgV8cQHf9LpKLqi0bRBH4nTuHmJL5OxYxmtJljjOQb5JQ6ZNYo9XSVx0vzMMymdRpOxVBEoGvslcQkusY4mOx/NrrwmjLmXPf0zyOcU7dXQxyW7d8qrH8UX3GoTkUXxUSrbvyjcdILOVtblLbvKuDgGu8VSs7+BXILUoU58RT44uP6nD1W9h8SZHQZxpyDuyf0YNWpVI6yMOsz72RgUd3mluzQRrCJo79QO/lwYYLOk9JdIiuObiK5/DS25iWF09XpdO3LZoXsnzJbxQdH6kvqUlHhbtQI/zdRSEU=
 
 script:
   - if [[ $RUN_UNIT_TESTS == "yes" ]]; then phpunit --configuration travisci-phpunit.xml; fi
 
 deploy:
   provider: releases
-  api_key: "0c3354f7c3a4e98620f06408ceaad64aece27cdb"
+  api_key:
+    secure: $RELEASE_ACCESS_KEY
   skip_cleanup: true
   overwrite: true
   on:
