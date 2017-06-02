@@ -5,8 +5,15 @@ php:
 
 env:
   global:
-    - RUN_UNIT_TESTS="yes"
+    - RUN_UNIT_TESTS="no"
 
-#script:
-#  - if [[ $RUN_UNIT_TESTS == "yes" ]]; then phpunit --configuration travisci-phpunit.xml; fi
-script: skip
+script:
+  - if [[ $RUN_UNIT_TESTS == "yes" ]]; then phpunit --configuration travisci-phpunit.xml; fi
+
+deploy:
+  provider: releases
+  api_key: "09d049cb1aef9fa1b9b2254b53bef19dc549e3ff"
+  skip_cleanup: true
+  overwrite: true
+  on:
+    tags: true
