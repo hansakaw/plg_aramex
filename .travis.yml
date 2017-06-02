@@ -2,3 +2,11 @@ language: php
 
 php:
   - '5.5'
+
+env:
+  global:
+    - RUN_UNIT_TESTS="yes"
+
+#script:
+#  - if [[ $RUN_UNIT_TESTS == "yes" ]]; then phpunit --configuration travisci-phpunit.xml; fi
+script: skip
