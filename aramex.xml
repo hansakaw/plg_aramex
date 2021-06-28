@@ -6,8 +6,12 @@
     <authorUrl>http://hansakaonline.blogspot.com</authorUrl>
     <copyright>Copyright (C) 2016 Hansaka Weerasingha. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>2.1.1</version>
-    <description>VMSHIPMENT_ARAMEX_PLUGIN_DESC</description>
+    <version>2.2.0</version>
+    <description><![CDATA[<p><a href="http://aramex.com/" target="_blank">Aramex</a> is a leading global provider of comprehensive logistics and transportation solutions, our breadth of services include express courierdelivery, freight forwarding, logistics, supply chain management, e-commerce and record management services.</p>
+
+<p>This plugin simply provides integration to Aramex Web Service API to get acurate shipment rates and final shipment label upon order confirmation.</p>]]>
+    </description>
+
     <languages>
 		<language tag="en-GB">language/en-GB.plg_vmshipment_aramex.ini</language>
     </languages>
@@ -25,6 +29,11 @@
 					<option value="0">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_TEST_LABEL</option>
 					<option value="1">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_LIVE_LABEL</option>
 				</field>
+				<!--<field name="generte_label" type="radio" scope="com_virtuemart" default="1" label="VMSHIPMENT_ARAMEX_CONFIG_GENERATE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_GENERATE_LABEL_DESC">
+					<option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+				</field>-->
+				<field name="countries" multiple="true" type="vmcountries" scope="com_virtuemart" default="" label="VMSHIPMENT_ARAMEX_CONFIG_COUNTRIES" description="VMSHIPMENT_ARAMEX_CONFIG_COUNTRIES_DESC"/>
 			</fieldset>
 			<fieldset name="acinfo">
 				<field type="vmtitle" default="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_INFORMATION" level="level1" />
@@ -107,5 +116,5 @@
 				<field name="shopper_body" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_BODY_LABEL" description=""/>	
 			</fieldset>
 		</fields>
-    </vmconfig>
+	</vmconfig>
 </extension>
