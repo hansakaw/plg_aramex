@@ -1,12 +1,14 @@
 <?php
 
 defined ('_JEXEC') or die('Restricted access');
+
 if (!class_exists ('vmPSPlugin')) {
 	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
 }
 if (!defined('WSDL_PATH')) {
 	define('WSDL_PATH', dirname(__FILE__).DS.'wsdl'.DS);
 }
+
 class plgVmShipmentAramex extends vmPSPlugin {
 	/**
 	 * @param object $subject
@@ -22,7 +24,6 @@ class plgVmShipmentAramex extends vmPSPlugin {
 		$this->tableFields = array_keys ($this->getTableSQLFields ());
 		$varsToPush = $this->getVarsToPush ();
 		$this->setConfigParameterable ($this->_configTableFieldName, $varsToPush);
-
 	}
 
 	/**
@@ -53,8 +54,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			'tax_id'                       => 'smallint(1)',
 			'reference'                    => 'varchar(250)',
 			'labelurl'                       => 'varchar(250)',
-			'labelpath'                       => 'varchar(250)',
-
+			'labelpath'                       => 'varchar(250)'
 		);
 		return $SQLfields;
 	}
@@ -71,7 +71,6 @@ class plgVmShipmentAramex extends vmPSPlugin {
 	 * @author Max Milbers
 	 */
 	public function plgVmOnShowOrderFEShipment ($virtuemart_order_id, $virtuemart_shipmentmethod_id, &$shipment_name) {
-
 		$this->onShowOrderFE ($virtuemart_order_id, $virtuemart_shipmentmethod_id, $shipment_name);
 	}
 
@@ -86,7 +85,6 @@ class plgVmShipmentAramex extends vmPSPlugin {
 	 * @author Valerie Isaksen
 	 */
 	function plgVmConfirmedOrder (VirtueMartCart $cart, $order) {
-
 		$app		= JFactory::getApplication();
 
 		if (!($method = $this->getVmPluginMethod ($order['details']['BT']->virtuemart_shipmentmethod_id))) {
@@ -457,7 +455,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 	function getCosts (VirtueMartCart $cart, $method, $cart_prices) 
 	{
 		$db = & JFactory::getDBO();
-		if($cart->ST)
+		if($cart->ST && $cart->ST['virtuemart_country_id'])
 		{
 			$dest_city = $cart->ST['city'];
 			$sql = "select country_2_code from #__virtuemart_countries where virtuemart_country_id = ".$cart->ST['virtuemart_country_id'];
@@ -467,7 +465,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			$dest_address = $cart->ST['address_1'];
 		}
 		else
-		if($cart->BT && $cart->STsameAsBT)
+		if($cart->BT && $cart->STsameAsBT && $cart->BT['virtuemart_country_id'])
 		{
 			$dest_city = $cart->BT['city'];
 			$sql = "select country_2_code from #__virtuemart_countries where virtuemart_country_id = ".$cart->BT['virtuemart_country_id'];
@@ -475,6 +473,8 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			$dest_country = $db->loadResult();	
 			$dest_zip = $cart->BT['zip'];
 			$dest_address = $cart->BT['address_1'];
+		} else {
+			return 'N/A';
 		}
 		//
 		if (!class_exists('CurrencyDisplay'))
@@ -493,47 +493,54 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			//calculate weight
 			$weight = $this->getOrderWeight ($cart,'KG');
 			$params = array(
-			'ClientInfo'  			=> array(
-										'AccountCountryCode'	=> $method->account_country_code,
-										'AccountEntity'		 	=> $method->account_entity,
-										'AccountNumber'		 	=> $method->account_number,
-										'AccountPin'		 	=> $method->account_pin,
-										'UserName'			 	=> $method->username,
-										'Password'			 	=> $method->password,
-										'Version'			 	=> $method->version
-									),
-									
-			'Transaction' 			=> array(
-										'Reference1'			=> $cart->customer_number, 
-										'Reference2'			=> '002' 
-									),
-												
-			'OriginAddress' 	 	=> array(
-									'Line1'						=> $method->account_address,
-									'City'						=> $method->account_city,
-									//'StateOrProvinceCode'		=> $method->account_state,
-									'PostCode'					=> $method->account_zipcode,
-									'CountryCode'				=> $method->account_country_code
-								),
-			
-			
-								
+			'ClientInfo'  		=> array(
+								'AccountCountryCode'		=> $method->account_country_code,
+								'AccountEntity'		 	=> $method->account_entity,
+								'AccountNumber'		 	=> $method->account_number,
+								'AccountPin'		 	=> $method->account_pin,
+								'UserName'			=> $method->username,
+								'Password'			=> $method->password,
+								'Version'			=> $method->version
+							),
+			'Transaction' 		=> array(
+								'Reference1'			=> $cart->customer_number, 
+								'Reference2'			=> '002',
+								'Reference3'			=> '',
+								'Reference4'			=> '',
+								'Reference5'			=> ''
+							),
+			'OriginAddress' 	 => array(
+								'Line1'				=> $method->account_address,
+								'Line2'				=> '',
+								'Line3'				=> '',
+								'City'				=> $method->account_city,
+								//'StateOrProvinceCode'		=> $method->account_state,
+								'PostCode'			=> $method->account_zipcode,
+								'CountryCode'			=> $method->account_country_code
+							),
 			'DestinationAddress' 	=> array(
-									'Line1'					=> $dest_address,
-									'City'					=> $dest_city,
-									'CountryCode'			=> $dest_country,
-									'PostCode'				=> $dest_zip,
-								),
-			'ShipmentDetails'		=> array(
-										'PaymentType'			 => $method->payment_type,
-										'ProductGroup'			 => $method->product_group,
-										'ProductType'			 => $method->product_type,
-										'ActualWeight' 			 => array('Value' => $weight, 'Unit' => 'KG'),
-										'ChargeableWeight' 	     => array('Value' => $weight, 'Unit' => 'KG'),
-										'NumberOfPieces'		 => $tq,
-										'CurrencyCode'			 => $currency->_vendorCurrency_code_3
-									),
+								'Line1'				=> $dest_address,
+								'Line2'				=> '',
+								'Line3'				=> '',
+								'City'				=> $dest_city,
+								'CountryCode'		 	=> $dest_country,
+								'PostCode'			=> $dest_zip,
+							),
+			'ShipmentDetails'	=> array(
+								'PaymentType'			=> $method->payment_type,
+								'ProductGroup'			=> $method->product_group,
+								'ProductType'			=> $method->product_type,
+								'PaymentOptions'		=> $method->payment_options,
+								'Dimensions'			=> array('Length' => 10, 'Width' => 10, 'Height' => 10, 'Unit' => 'CM'),
+								'ActualWeight' 			=> array('Value' => $weight, 'Unit' => 'KG'),
+								'ChargeableWeight' 	     	=> array('Value' => $weight, 'Unit' => 'KG'),
+								'NumberOfPieces'		=> $tq,
+								'CurrencyCode'			=> $currency->_vendorCurrency_code_3,
+								'DescriptionOfGoods'		=> '',
+								'GoodsOriginCountry'		=> ''
+							),
 			);
+
 
 			if($method->ship_mode) //live mode
 			{

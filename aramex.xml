@@ -6,103 +6,106 @@
     <authorUrl>http://hansakaonline.blogspot.com</authorUrl>
     <copyright>Copyright (C) 2016 Hansaka Weerasingha. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <description>VMSHIPMENT_ARAMEX_PLUGIN_DESC</description>
     <languages>
 		<language tag="en-GB">language/en-GB.plg_vmshipment_aramex.ini</language>
     </languages>
     <files>
-        <filename plugin="aramex">aramex.php</filename>
-        <filename plugin="aramex">index.html</filename>
-        <folder>language</folder>
-        <folder>wsdl</folder>
+		<filename plugin="aramex">aramex.php</filename>
+		<filename plugin="aramex">index.html</filename>
+		<folder>language</folder>
+		<folder>wsdl</folder>
     </files>
     <vmconfig>
+        <fields addpath="/administrator/components/com_virtuemart/fields"/>
         <fields name="params">
-          <fieldset name="shipmode">
-              <field name="ship_mode" type="list" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_DESC">
-			<option value="0">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_TEST_LABEL</option>
-			<option value="1">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_LIVE_LABEL</option>
-              </field>
-          </fieldset>
-          <fieldset name="accountinfo">
-              <field type="spacer" name="accountinfo" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_INFORMATION" />
-              <field name="username" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_USERNAME_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_USERNAME_DESC"/>
-              <field name="password" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_PASSWORD_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PASSWORD_DESC"/>
-              <field name="version" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_VERSION_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_VERSION_DESC"/>
-              <field name="account_entity" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ENTITY_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ENTITY_DESC"/>
-              <field name="account_number" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_NUMBER_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_NUMBER_DESC"/>
-              <field name="account_pin" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_PIN_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_PIN_DESC"/>
-              <field name="account_address" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ADDRESS_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ADDRESS_DESC"/>
-              <field name="account_city" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_CITY_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_CITY_DESC"/>
-              <field name="account_state" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_STATE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_STATE_DESC"/>
-              <field name="account_zipcode" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ZIPCODE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ZIPCODE_DESC"/>
-              <field name="account_country_code" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_COUNTRY_CODE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_COUNTRY_CODE_DESC"/>
-          </fieldset>
-          <fieldset name="shippinginfo">
-              <field type="spacer" name="shippinginfo" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPING_INFORMATION" />
-              <field name="product_group" type="list" default="EXP" label="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_GROUP_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_GROUP_DESC">
-                  <option value="EXP">Express</option>
-                  <option value="DOM">Domestic</option>
-              </field>
-              <field name="product_type" type="list"  default="PDX" label="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_TYPE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_TYPE_DESC" >
-                  <option value="PDX">Priority Document Express</option>
-                  <option value="PPX">Priority Parcel Express</option>
-                  <option value="PLX">Priority Letter Express</option>
-                  <option value="DDX">Deferred Document Express</option>
-                  <option value="DPX">Deferred Parcel Express</option>
-                  <option value="GDX">Ground Document Express</option>
-                  <option value="GPX">Ground Parcel Express</option>
-              </field>
-              <field name="payment_type" type="list" default="C" label="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_TYPE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_TYPE_DESC">
-                  <option value="P">Prepaid</option>
-                  <option value="C">Collect</option>
-                  <option value="T">Third Party</option>
-              </field>
-              <field name="payment_options" type="list"  default="CASH" label="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_OPTIONS_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_OPTIONS_DESC">
-                  <option value="ASCC">Collect - Needs Shipper Account</option>
-                  <option value="ARCC">Collect - Needs Consignee Account</option>
-                  <option value="CASH">Prepaid - Cash</option>
-                  <option value="ACCT">Prepaid - Account</option>
-                  <option value="PPST">Prepaid - Prepaid Stock</option>
-                  <option value="CRDT">Prepaid - Credit</option>
-              </field>
-              <field name="services" type="list"  default="CODS" label="VMSHIPMENT_ARAMEX_CONFIG_SERVICES_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_SERVICES_DESC">
-                  <option value="CODS">Cash on Delivery</option>
-                  <option value="FIRST">First Delivery</option>
-                  <option value="FRDOM">Free Domicile</option>
-                  <option value="HFPU">Hold for pick up</option>
-                  <option value="NOON">Noon Delivery</option>
-                  <option value="SIG">Signature Required</option>
-              </field>
-              <field name="description_of_goods" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_DESCRIPTION_OF_GOODS_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_DESCRIPTION_OF_GOOD_DESC"/>
-              <field name="goods_country" type="text" size="60" default="LB" label="VMSHIPMENT_ARAMEX_CONFIG_GOODS_COUNTRY_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_GOODS_COUNTRY_DESC"/>
-              <field name="custom_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_CUSTOM_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_CUSTOM_AMOUNT_DESC"/>
-              <field name="insurance_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_INSURANCE_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_INSURANCE_AMOUNT_DESC"/>
-              <field name="cash_additional_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDITIONAL_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDITIONAL_DESC"/>
-              <field name="cash_additional_desc" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDITIONAL_DESC_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDTIONAL_DESC_DESC"/>
-              <field name="collect_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_COLLECT_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_COLLECT_AMOUNT_DESC"/>
-              <field type="spacer" default="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_INFORMATION" level="level1" />
-              <field name="shipper_department" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_DEPARTMENT_LABEL" description=""/>
-              <field name="shipper_personname" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PERSON_NAME_LABEL" description="" required="true"/>
-              <field name="shipper_title" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_TITLE_LABEL" description="" required="true"/>
-              <field name="shipper_companyname" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_COMPANY_NAME_LABEL" description=""/>
-              <field name="shipper_phonenumber1" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER1_LABEL" description="" required="true"/>
-              <field name="shipper_phonenumber1ext" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER1_EXT_LABEL" description=""/>
-              <field name="shipper_phonenumber2" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER2_LABEL" description=""/>
-              <field name="shipper_phonenumber2ext" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER2_EXT_LABEL" description=""/>
-              <field name="shipper_faxnumber" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_FAX_NUMBER_LABEL" description=""/>
-              <field name="shipper_cellphone" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_CELLPHONE_LABEL" description="" required="true"/>
-              <field name="shipper_emailaddress" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_EMAIL_LABEL" description="" required="true"/>
-          </fieldset>
-          <fieldset name="emailconf">
-              <field type="spacer" name="emailconf" label="VMSHIPMENT_ARAMEX_CONFIG_EMAIL_INFORMATION" />
-              <field name="admin_email" type="text"  default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_EMAIL_LABEL" description=""/>
-              <field name="admin_subject" type="text"  default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_SUBJECT_LABEL" description=""/>
-              <field name="admin_body" type="textarea"  default="" cols="50" rows = "5" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_BODY_LABEL" description=""/>
-              <field name="shopper_subject" type="text"  default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_SUBJECT_LABEL" description=""/>
-              <field name="shopper_body" type="textarea"  default="" cols="50" rows = "5" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_BODY_LABEL" description=""/>	
-          </fieldset>
-	   </fields>
+			<fieldset name="shipmode">
+				<field name="ship_mode" type="list" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_DESC">
+					<option value="0">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_TEST_LABEL</option>
+					<option value="1">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_LIVE_LABEL</option>
+				</field>
+			</fieldset>
+			<fieldset name="acinfo">
+				<field type="vmtitle" default="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_INFORMATION" level="level1" />
+				<field name="username" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_USERNAME_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_USERNAME_DESC"/>
+				<field name="password" type="password" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_PASSWORD_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PASSWORD_DESC"/>
+				<field name="version" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_VERSION_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_VERSION_DESC"/>
+				<field name="account_entity" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ENTITY_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ENTITY_DESC"/>
+				<field name="account_number" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_NUMBER_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_NUMBER_DESC"/>
+				<field name="account_pin" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_PIN_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_PIN_DESC"/>
+				<field name="account_address" type="textarea" cols="50" rows="5" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ADDRESS_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ADDRESS_DESC"/>
+				<field name="account_city" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_CITY_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_CITY_DESC"/>
+				<field name="account_state" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_STATE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_STATE_DESC"/>
+				<field name="account_zipcode" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ZIPCODE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_ZIPCODE_DESC"/>
+				<field name="account_country_code" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_COUNTRY_CODE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_ACCOUNT_COUNTRY_CODE_DESC"/>
+			</fieldset>
+			<fieldset name="shippinginfo">
+				<field type="vmtitle" default="VMSHIPMENT_ARAMEX_CONFIG_SHIPPING_INFORMATION" level="level1" />
+				<field name="product_group" type="list" default="EXP" label="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_GROUP_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_GROUP_DESC">
+					<option value="EXP">Express</option>
+					<option value="DOM">Domestic</option>
+				</field>
+				<field name="product_type" type="list"  default="PDX" label="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_TYPE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PRODUCT_TYPE_DESC" >
+					<option value="PDX">Priority Document Express</option>
+					<option value="PPX">Priority Parcel Express</option>
+					<option value="PLX">Priority Letter Express</option>
+					<option value="DDX">Deferred Document Express</option>
+					<option value="DPX">Deferred Parcel Express</option>
+					<option value="GDX">Ground Document Express</option>
+					<option value="GPX">Ground Parcel Express</option>
+				</field>
+				<field name="payment_type" type="list" default="C" label="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_TYPE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_TYPE_DESC">
+					<option value="P">Prepaid</option>
+					<option value="C">Collect</option>
+					<option value="T">Third Party</option>
+				</field>
+				<field name="payment_options" type="list"  default="CASH" label="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_OPTIONS_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_PAYMENT_OPTIONS_DESC">
+					<option value="ASCC">Collect - Needs Shipper Account</option>
+					<option value="ARCC">Collect - Needs Consignee Account</option>
+					<option value="CASH">Prepaid - Cash</option>
+					<option value="ACCT">Prepaid - Account</option>
+					<option value="PPST">Prepaid - Prepaid Stock</option>
+					<option value="CRDT">Prepaid - Credit</option>
+				</field>
+				<field name="services" type="list"  default="CODS" label="VMSHIPMENT_ARAMEX_CONFIG_SERVICES_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_SERVICES_DESC">
+					<option value="CODS">Cash on Delivery</option>
+					<option value="FIRST">First Delivery</option>
+					<option value="FRDOM">Free Domicile</option>
+					<option value="HFPU">Hold for pick up</option>
+					<option value="NOON">Noon Delivery</option>
+					<option value="SIG">Signature Required</option>
+				</field>
+				<field name="description_of_goods" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_DESCRIPTION_OF_GOODS_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_DESCRIPTION_OF_GOOD_DESC"/>
+				<field name="goods_country" type="text" size="60" default="LB" label="VMSHIPMENT_ARAMEX_CONFIG_GOODS_COUNTRY_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_GOODS_COUNTRY_DESC"/>
+				<field name="custom_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_CUSTOM_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_CUSTOM_AMOUNT_DESC"/>
+				<field name="insurance_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_INSURANCE_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_INSURANCE_AMOUNT_DESC"/>
+				<field name="cash_additional_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDITIONAL_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDITIONAL_DESC"/>
+				<field name="cash_additional_desc" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDITIONAL_DESC_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_CASH_ADDTIONAL_DESC_DESC"/>
+				<field name="collect_amount" type="text" size="60" default="0" label="VMSHIPMENT_ARAMEX_CONFIG_COLLECT_AMOUNT_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_COLLECT_AMOUNT_DESC"/>
+			</fieldset>
+			<fieldset name="shipperinfo">
+				<field type="vmtitle" default="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_INFORMATION" level="level1" />
+				<field name="shipper_department" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_DEPARTMENT_LABEL" description=""/>
+				<field name="shipper_personname" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PERSON_NAME_LABEL" description="" required="true"/>
+				<field name="shipper_title" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_TITLE_LABEL" description="" required="true"/>
+				<field name="shipper_companyname" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_COMPANY_NAME_LABEL" description=""/>
+				<field name="shipper_phonenumber1" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER1_LABEL" description="" required="true"/>
+				<field name="shipper_phonenumber1ext" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER1_EXT_LABEL" description=""/>
+				<field name="shipper_phonenumber2" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER2_LABEL" description=""/>
+				<field name="shipper_phonenumber2ext" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_PHONE_NUMBER2_EXT_LABEL" description=""/>
+				<field name="shipper_faxnumber" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_FAX_NUMBER_LABEL" description=""/>
+				<field name="shipper_cellphone" type="text" size="60" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_CELLPHONE_LABEL" description="" required="true"/>
+				<field name="shipper_emailaddress" type="textarea" cols="50" rows="5" default="" label="VMSHIPMENT_ARAMEX_CONFIG_SHIPPER_EMAIL_LABEL" description="" required="true"/>
+			</fieldset>
+			<fieldset name="emailconf">
+				<field type="vmtitle" default="VMSHIPMENT_ARAMEX_CONFIG_EMAIL_INFORMATION" level="level1" />
+				<field name="admin_email" type="text" default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_EMAIL_LABEL" description=""/>
+				<field name="admin_subject" type="text" default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_SUBJECT_LABEL" description=""/>
+				<field name="admin_body" type="textarea" default="" cols="50" rows = "5" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_BODY_LABEL" description=""/>
+				<field name="shopper_subject" type="text" default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_SUBJECT_LABEL" description=""/>
+				<field name="shopper_body" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_BODY_LABEL" description=""/>	
+			</fieldset>
+		</fields>
     </vmconfig>
 </extension>
