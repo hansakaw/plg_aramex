@@ -113,7 +113,7 @@
 				<field name="admin_subject" type="text" default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_SUBJECT_LABEL" description=""/>
 				<field name="admin_body" type="textarea" default="" cols="50" rows = "5" label="VMSHIPMENT_ARAMEX_CONFIG_ADMIN_BODY_LABEL" description=""/>
 				<field name="shopper_subject" type="text" default="" size="60" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_SUBJECT_LABEL" description=""/>
-				<field name="shopper_body" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_BODY_LABEL" description=""/>	
+				<field name="shopper_body" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_BODY_LABEL" description=""/>
 			</fieldset>
 		</fields>
     </vmconfig>
