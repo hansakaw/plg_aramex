@@ -53,8 +53,8 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			'shipment_package_fee'         => 'decimal(10,2)',
 			'tax_id'                       => 'smallint(1)',
 			'reference'                    => 'varchar(250)',
-			'labelurl'                       => 'varchar(250)',
-			'labelpath'                       => 'varchar(250)'
+			'labelurl'                     => 'varchar(250)',
+			'labelpath'                    => 'varchar(250)'
 		);
 		return $SQLfields;
 	}
@@ -94,14 +94,13 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			return FALSE;
 		}
 		$db = & JFactory::getDBO();
-		
-	
-		
+
+
 		if (!class_exists('CurrencyDisplay'))
 			require(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'currencydisplay.php');
 		$currency = CurrencyDisplay::getInstance($cart->vendor->vendor_currency);
 
-		if($cart->ST)
+		if($cart->ST && $cart->ST['virtuemart_country_id'])
 		{
 			$shipto = $cart->ST;	
 			$sql = "select country_2_code from #__virtuemart_countries where virtuemart_country_id = ".$cart->ST['virtuemart_country_id'];
@@ -109,18 +108,25 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			$shipto['country'] = $db->loadResult();
 		}
 		else
-		if($cart->BT && $cart->STsameAsBT)
+		if($cart->BT && $cart->STsameAsBT && $cart->BT['virtuemart_country_id'])
 		{
 			$sql = "select country_2_code from #__virtuemart_countries where virtuemart_country_id = ".$cart->BT['virtuemart_country_id'];
 			$db->setQuery($sql);
 			$shipto = $cart->BT;	
 			$shipto['country'] = $db->loadResult();
 		}
+		// merge data from both ST and BT into shipto array
+		if (!$cart->STsameAsBT)
+		{
+			if (empty($shipto['phone_1']))
+				$shipto['phone_1'] = $cart->BT['phone_1'];
+			$shipto['email'] = $cart->BT['email'];
+		}
 
 		$aramex_items = array();
+		$products_quantity = 0;
 		foreach($cart->products as $pro)
 		{
-			
 			$prow = number_format(ShopFunctions::convertWeightUnit ($pro->product_weight, $pro->product_weight_uom, 'KG') * $pro->quantity,3);
 			$prow = $prow ? $prow : 0;
 			$aramex_items[]	= array(
@@ -133,170 +139,163 @@ class plgVmShipmentAramex extends vmPSPlugin {
 				'Comments'		=> 'Docs',
 				'Reference'		=> '',
 			);
-
-			
+			// calculate product quantity
+			$products_quantity += $pro->quantity;
 		}
 
+		//calculate weight
+		$weight = $this->getOrderWeight($cart,'KG');
+
 		//create Shipment
-		$params['Shipper'] = array(
-		
+		$params['Shipper'] 	= array(
 			'Reference1' 	=> $cart->order_number,
 			'Reference2' 	=> $cart->customer_number,
 			'AccountNumber' => $method->account_number,
 			
 			'PartyAddress'	=> array(
-				'Line1'				=> $method->account_address,
-				'City'				=> $method->account_city,
-				//'StateOrProvinceCode'	        => $method->addcount_state,
-				'PostCode'			=> $method->account_zipcode,
-				'CountryCode'			=> $method->account_country_code
+				'Line1'				    => $method->account_address,
+				'City'				    => $method->account_city,
+				//'StateOrProvinceCode'	=> $method->addcount_state,
+				'PostCode'			    => $method->account_zipcode,
+				'CountryCode'		    => $method->account_country_code
 			),
 								
 			'Contact'       => array(
 				'Department'			=> $method->shipper_department,
 				'PersonName'			=> $method->shipper_personname,
-				'Title'				=> $method->shipper_title,
+				'Title'				    => $method->shipper_title,
 				'CompanyName'			=> $method->shipper_companyname,
 				'PhoneNumber1'			=> $method->shipper_phonenumber1,
 				'PhoneNumber1Ext'		=> $method->shipper_phonenumber1ext,
 				'PhoneNumber2'			=> $method->shipper_phonenumber2,
 				'PhoneNumber2Ext'		=> $method->shipper_phonenumber2ext,
-				'FaxNumber'			=> $method->shipper_faxnumber,
-				'CellPhone'			=> $method->shipper_cellphone,
+				'FaxNumber'			    => $method->shipper_faxnumber,
+				'CellPhone'			    => $method->shipper_cellphone,
 				'EmailAddress'			=> $method->shipper_emailaddress,
-				'Type'				=> ''
+				'Type'				    => ''
 			)
 		);
 												
 		$params['Consignee']	= array(
-				'Reference1' 	=> $cart->order_number,
-				'Reference2' 	=> $cart->customer_number,
-				'AccountNumber' => $method->account_number,
-				'PartyAddress'	=> array(
-					'Line1'					=> $shipto['address_1'],
-					'Line2'					=> $shipto['address_2'],
-					'Line3'					=> '',
-					'City'					=> $shipto['city'],
-					'StateOrProvinceCode'	=> $shipto['state'],
-					'PostCode'				=> $shipto['zip'],
-					'CountryCode'			=> $shipto['country'],
-				),
-										
-				'Contact'		=> array(
-					'Department'			=> '',
-					'PersonName'			=> $shipto['first_name'].' '.$shipto['last_name'],
-					'Title'					=> '',
-					'CompanyName'			=> $shipto['first_name'].' '.$shipto['last_name'],
-					'PhoneNumber1'			=> $shipto['phone_1'],
-					'PhoneNumber1Ext'		=> '',
-					'PhoneNumber2'			=> $shipto['phone_2'],
-					'PhoneNumber2Ext'		=> '',
-					'FaxNumber'				=> '',
-					'CellPhone'				=> $shipto['phone_1'],
-					'EmailAddress'			=> $shipto['email'],
-					'Type'					=> ''
-				),
-			);
+			'Reference1' 			=> $cart->order_number,
+			'Reference2' 			=> $cart->customer_number,
+			'AccountNumber' 		=> $method->account_number,
+			'PartyAddress'			=> array(
+				'Line1'				    => $shipto['address_1'],
+				'Line2'				    => $shipto['address_2'],
+				'Line3'				    => '',
+				'City'				    => $shipto['city'],
+				'StateOrProvinceCode'	=> $shipto['state'],
+				'PostCode'			    => $shipto['zip'],
+				'CountryCode'		    => $shipto['country'],
+			),
+									
+			'Contact'			=> array(
+				'Department'		=> '',
+				'PersonName'		=> $shipto['first_name'].' '.$shipto['last_name'],
+				'Title'				=> '',
+				'CompanyName'		=> $shipto['first_name'].' '.$shipto['last_name'],
+				'PhoneNumber1'		=> $shipto['phone_1'],
+				'PhoneNumber1Ext'	=> '',
+				'PhoneNumber2'		=> $shipto['phone_2'],
+				'PhoneNumber2Ext'	=> '',
+				'FaxNumber'			=> '',
+				'CellPhone'			=> $shipto['phone_1'],
+				'EmailAddress'		=> $shipto['email'],
+				'Type'				=> ''
+			),
+		);
 			
-			$params['Reference1'] 				= $cart->order_number; //'Shpt0001';
-			$params['Reference2'] 				= $cart->customer_number;
-			$params['Reference3'] 				= '';
-			$params['ForeignHAWB'] 				= $method->foreignhawb;
+		$params['Reference1'] 				= $cart->order_number; //'Shpt0001';
+		$params['Reference2'] 				= $cart->customer_number;
+		$params['Reference3'] 				= '';
+		$params['ForeignHAWB'] 				= $method->foreignhawb;
 
-			$params['TransportType'] 			= 0;
-			$params['ShippingDateTime'] 		= time() ;
-			$params['DueDate'] 					= time() + (7 * 24 * 60 * 60); //date('m/d/Y g:i:sA');
-			$params['PickupLocation'] 			= 'Reception';
-			$params['PickupGUID'] 				= '';
-			$params['Comments'] 				= $method->description_of_goods;
-			$params['AccountingInstrcutions'] 	= '';
-			$params['OperationsInstructions'] 	= '';									
-			
-			$params['Details']= array(
-					'Dimensions' => array(
-						'Length'		=> 10,
-						'Width'			=> 10,
-						'Height'		=> 10,
-						'Unit'			=> 'CM',
-						
-					),
-					
+		$params['TransportType'] 			= 0;
+		$params['ShippingDateTime'] 		= time();
+		$params['DueDate'] 				    = time() + (7 * 24 * 60 * 60); //date('m/d/Y g:i:sA');
+		$params['PickupLocation'] 			= 'Reception';
+		$params['PickupGUID'] 				= '';
+		$params['Comments'] 				= $method->description_of_goods;
+		$params['AccountingInstrcutions'] 	= '';
+		$params['OperationsInstructions'] 	= '';
 
-					'ActualWeight' => array(
-						'Value'			=> number_format($this->getOrderWeight ($cart,'KG'),3),
-						'Unit'			=> 'KG'
-					),
-					
-					'ProductGroup' 			=> $method->product_group,
-					'ProductType'			=> $method->product_type,
-					'PaymentType'			=> $method->payment_type,
-					'PaymentOptions' 		=> $method->payment_options,
-					'Services'			=> $method->services,
-					'NumberOfPieces'		=> 1,
-					'DescriptionOfGoods' 	        => $method->description_of_goods,
-					'GoodsOriginCountry' 	        => $method->goods_country,
-					'CurrencyCode'			=> $currency->_vendorCurrency_code_3,			
-					'Items' 			=> $aramex_items
+		$params['Details']	= array(
+			'Dimensions' => array(
+				'Length'		=> 10,
+				'Width'			=> 10,
+				'Height'		=> 10,
+				'Unit'			=> 'CM',
+			),
+
+			'ActualWeight' => array(
+				'Value'			=> $weight,
+				'Unit'			=> 'KG'
+			),
+
+			'ProductGroup' 			=> $method->product_group,
+			'ProductType'			=> $method->product_type,
+			'PaymentType'			=> $method->payment_type,
+			'PaymentOptions' 		=> $method->payment_options,
+			'Services'		    	=> $method->services,
+			'NumberOfPieces'		=> $products_quantity,
+			'DescriptionOfGoods'    => $method->description_of_goods,
+			'GoodsOriginCountry'    => $method->goods_country,
+			'CurrencyCode'          => $currency->_vendorCurrency_code_3,			
+			'Items'                 => $aramex_items
+		);
+
+		if ($method->services == 'COD')
+		{
+			$params['Details']['CashOnDeliveryAmount'] = array(
+				'Value'				=> $cart->pricesUnformatted['billTotal'],
+				'CurrencyCode'		=> $currency->_vendorCurrency_code_3
 			);
-			
-			if ($method->services == 'COD')
-			{
-				$params['Details']['CashOnDeliveryAmount'] = array(
-						'Value'				=> $cart->pricesUnformatted['billTotal'],
-						'CurrencyCode'			=> $currency->_vendorCurrency_code_3
-				);
-			}
+		}
 
-			$params['Details']['CustomsValueAmount'] = array(
-					'Value'				=> $cart->pricesUnformatted['billTotal'],
-					'CurrencyCode'			=> $currency->_vendorCurrency_code_3
+		$params['Details']['CustomsValueAmount'] = array(
+			'Value'				=> $cart->pricesUnformatted['billTotal'],
+			'CurrencyCode'		=> $currency->_vendorCurrency_code_3
+		);
+
+		if($method->insurance_amount)
+		{
+			$params['Details']['InsuranceAmount'] = array(
+				'Value'				=> $method->insurance_amount,
+				'CurrencyCode'		=> $currency->_vendorCurrency_code_3
 			);
-
-
-
-			if($method->insurance_amount)
-						{
-							$params['Details']['InsuranceAmount'] = array(
-									'Value'					=> $method->insurance_amount,
-									'CurrencyCode'			=> $currency->_vendorCurrency_code_3
-							);
-						}
-			if($method->cash_additional_amount)
-						{
-							$params['Details']['CashAdditionalAmount'] = array(
-									'Value'					=> $method->cash_additional_amount,
-									'CurrencyCode'			=> $currency->_vendorCurrency_code_3
-							);
-
-							$params['Details']['CashAdditionalAmountDescription'] = $method->cash_additional_desc;
-						}
-			if($method->collect_amount)
-						{
-							$params['Details']['CollectAmount'] = array(
-									'Value'					=> $method->collect_amount,
-									'CurrencyCode'			=> $currency->_vendorCurrency_code_3
-							);
-						}
-
-
-
-
-			$major_par['Shipments'][] 	= $params;	
-		
-			$major_par['ClientInfo'] = array(
-										'AccountCountryCode'	=> $method->account_country_code,
-										'AccountEntity'		=> $method->account_entity,
-										'AccountNumber'		=> $method->account_number,
-										'AccountPin'		=> $method->account_pin,
-										'UserName'		=> $method->username,
-										'Password'		=> $method->password,
-										'Version'		=> $method->version
-									);
-			
-			$major_par['LabelInfo']	= array(
-										'ReportID' 		=> 9201,
-										'ReportType'		=> 'URL',
+		}
+		if($method->cash_additional_amount)
+		{
+			$params['Details']['CashAdditionalAmount'] = array(
+				'Value'				=> $method->cash_additional_amount,
+				'CurrencyCode'		=> $currency->_vendorCurrency_code_3
 			);
+			$params['Details']['CashAdditionalAmountDescription'] = $method->cash_additional_desc;
+		}
+		if($method->collect_amount)
+		{
+			$params['Details']['CollectAmount'] = array(
+				'Value'				=> $method->collect_amount,
+				'CurrencyCode'		=> $currency->_vendorCurrency_code_3
+			);
+		}
+
+		$major_par['Shipments'][] 	= $params;
+		$major_par['ClientInfo'] 	= array(
+			'AccountCountryCode'    => $method->account_country_code,
+			'AccountEntity'		    => $method->account_entity,
+			'AccountNumber'		    => $method->account_number,
+			'AccountPin'		    => $method->account_pin,
+			'UserName'		        => $method->username,
+			'Password'		        => $method->password,
+			'Version'		        => $method->version
+		);
+
+		$major_par['LabelInfo']	= array(
+			'ReportID' 		=> 9201,
+			'ReportType'	=> 'URL',
+		);
 
 		vmdebug('Shippment params', $major_par);
 
@@ -316,14 +315,18 @@ class plgVmShipmentAramex extends vmPSPlugin {
 				{
 					foreach($auth_call->Notifications->Notification as $notify_error)
 					{
-						JError::raiseWarning(500, 'Aramex: ' . $notify_error->Code .' - '. $notify_error->Message);
+						if(!empty($notify_error->Message))
+							JError::raiseWarning(500, 'Aramex: ' . $notify_error->Code .' - '. $notify_error->Message);
 					}
 				}
 				else
 				{
-					foreach($auth_call->Shipments->ProcessedShipment->Notifications->Notification as $notify_error)
+				    $processed_shipment = $auth_call->Shipments->ProcessedShipment;
+					if($processed_shipment->HasErrors)
 					{
-						JError::raiseWarning(500, 'Aramex: ' . $notify_error->Code . ' - '. $notify_error->Message);
+					    $notify_error = $processed_shipment->Notifications->Notification;
+						if(!empty($notify_error->Message))
+							JError::raiseWarning(500, 'Aramex: ' . $notify_error->Code . ' - '. $notify_error->Message);
 					}
 				}
 
@@ -342,7 +345,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 					$values['order_number'] = $order['details']['BT']->order_number;
 					$values['virtuemart_shipmentmethod_id'] = $order['details']['BT']->virtuemart_shipmentmethod_id;
 					$values['shipment_name'] = $this->renderPluginName ($method);
-					$values['order_weight'] = $this->getOrderWeight ($cart, $method->weight_unit);
+					$values['order_weight'] = $weight;
 					$values['shipment_weight_unit'] = 'KG';
 					$values['shipment_cost'] = $cart->pricesUnformatted['salesPricePayment'];
 					$values['shipment_package_fee'] = $method->package_fee;
@@ -471,7 +474,8 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			$db->setQuery($sql);
 			$dest_country = $db->loadResult();	
 			$dest_zip = $cart->ST['zip'];
-			$dest_address = $cart->ST['address_1'];
+			$dest_address_1 = $cart->ST['address_1'];
+			$dest_address_2 = $cart->ST['address_2'];
 		}
 		else
 		if($cart->BT && $cart->STsameAsBT && $cart->BT['virtuemart_country_id'])
@@ -481,7 +485,8 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			$db->setQuery($sql);
 			$dest_country = $db->loadResult();	
 			$dest_zip = $cart->BT['zip'];
-			$dest_address = $cart->BT['address_1'];
+			$dest_address_1 = $cart->BT['address_1'];
+			$dest_address_2 = $cart->BT['address_2'];
 		} else {
 			return 'N/A';
 		}
@@ -502,52 +507,52 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			//calculate weight
 			$weight = $this->getOrderWeight ($cart,'KG');
 			$params = array(
-			'ClientInfo'  		=> array(
-								'AccountCountryCode'		=> $method->account_country_code,
+			'ClientInfo'  	=> array(
+								'AccountCountryCode'	=> $method->account_country_code,
 								'AccountEntity'		 	=> $method->account_entity,
 								'AccountNumber'		 	=> $method->account_number,
 								'AccountPin'		 	=> $method->account_pin,
-								'UserName'			=> $method->username,
-								'Password'			=> $method->password,
-								'Version'			=> $method->version
+								'UserName'			    => $method->username,
+								'Password'			    => $method->password,
+								'Version'			    => $method->version
 							),
-			'Transaction' 		=> array(
+			'Transaction' 	=> array(
 								'Reference1'			=> $cart->customer_number, 
 								'Reference2'			=> '002',
 								'Reference3'			=> '',
 								'Reference4'			=> '',
 								'Reference5'			=> ''
 							),
-			'OriginAddress' 	 => array(
-								'Line1'				=> $method->account_address,
-								'Line2'				=> '',
-								'Line3'				=> '',
-								'City'				=> $method->account_city,
-								//'StateOrProvinceCode'		=> $method->account_state,
-								'PostCode'			=> $method->account_zipcode,
+			'OriginAddress'  => array(
+								'Line1'				    => $method->account_address,
+								'Line2'				    => '',
+								'Line3'				    => '',
+								'City'				    => $method->account_city,
+								//'StateOrProvinceCode'	=> $method->account_state,
+								'PostCode'			    => $method->account_zipcode,
 								'CountryCode'			=> $method->account_country_code
 							),
-			'DestinationAddress' 	=> array(
-								'Line1'				=> $dest_address,
-								'Line2'				=> '',
-								'Line3'				=> '',
-								'City'				=> $dest_city,
-								'CountryCode'		 	=> $dest_country,
-								'PostCode'			=> $dest_zip,
-							),
+			'DestinationAddress' => array(
+    								'Line1'				=> $dest_address_1,
+    								'Line2'				=> $dest_address_2,
+    								'Line3'				=> '',
+    								'City'				=> $dest_city,
+    								'CountryCode'		=> $dest_country,
+    								'PostCode'			=> $dest_zip,
+    							),
 			'ShipmentDetails'	=> array(
-								'PaymentType'			=> $method->payment_type,
-								'ProductGroup'			=> $method->product_group,
-								'ProductType'			=> $method->product_type,
-								'PaymentOptions'		=> $method->payment_options,
-								'Dimensions'			=> array('Length' => 10, 'Width' => 10, 'Height' => 10, 'Unit' => 'CM'),
-								'ActualWeight' 			=> array('Value' => $weight, 'Unit' => 'KG'),
-								'ChargeableWeight' 	     	=> array('Value' => $weight, 'Unit' => 'KG'),
-								'NumberOfPieces'		=> $tq,
-								'CurrencyCode'			=> $currency->_vendorCurrency_code_3,
-								'DescriptionOfGoods'		=> '',
-								'GoodsOriginCountry'		=> ''
-							),
+    								'PaymentType'			=> $method->payment_type,
+    								'ProductGroup'			=> $method->product_group,
+    								'ProductType'			=> $method->product_type,
+    								'PaymentOptions'		=> $method->payment_options,
+    								'Dimensions'			=> array('Length' => 10, 'Width' => 10, 'Height' => 10, 'Unit' => 'CM'),
+    								'ActualWeight' 			=> array('Value' => $weight, 'Unit' => 'KG'),
+    								'ChargeableWeight' 	    => array('Value' => $weight, 'Unit' => 'KG'),
+    								'NumberOfPieces'		=> $tq,
+    								'CurrencyCode'			=> $currency->_vendorCurrency_code_3,
+    								'DescriptionOfGoods'	=> $method->description_of_goods,
+    								'GoodsOriginCountry'	=> $method->goods_country,
+    							),
 			);
 
 			vmdebug('Rates params', $params);
@@ -568,26 +573,34 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			{
 				if(count($results->Notifications->Notification) > 1)
 				{
-					foreach($results->Notifications->Notification as 	$noti)
+					foreach($results->Notifications->Notification as $noti)
 					{
-						JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);	
+						if(!empty($noti->Message))
+							JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);	
 					}
 				}
 				else
 				{
-					foreach($results->Notifications as 	$noti)
+					foreach($results->Notifications as $noti)
 					{
-						JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);	
+						if(!empty($noti->Message))
+							JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);	
 					}
 				}
 			}
 			else
-				return $results->TotalAmount->Value;
+			{
+				$shipping_cost = $results->TotalAmount->Value;
+				if(empty($shipping_cost))
+					JError::raiseWarning('500', 'Aramex Shipment: --  Shipping cost not provided');
+				else
+					return $shipping_cost;
+			}
 		}
 		else
-			JError::raiseWarning(500,"Shipping Address is empty");
-		//return $result;
-		//return 100;
+			JError::raiseWarning(500, "Shipping Address is empty");
+
+		return NULL;
 	}
 
      /**
@@ -600,7 +613,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 	 * @param array          $cart_prices
 	 */
 	protected function checkConditions ($cart, $method, $cart_prices) {
-           $countries = array();
+		$countries = array();
 		if (!empty($method->countries)) {
 			if (!is_array ($method->countries)) {
 				$countries[0] = $method->countries;
@@ -609,20 +622,19 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			}
 		}
 
-           $address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
-           // probably did not gave his BT:ST address
+		$address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
+		// probably did not gave his BT:ST address
 		if (!is_array ($address)) {
 			$address = array();
 			$address['virtuemart_country_id'] = 0;
 		}
-           if (!isset($address['virtuemart_country_id'])) {
+		if (!isset($address['virtuemart_country_id'])) {
 			$address['virtuemart_country_id'] = 0;
 		}
-
-           if (in_array($address['virtuemart_country_id'], $countries) || count($countries) == 0) {
-		      return TRUE;
+		if (in_array($address['virtuemart_country_id'], $countries) || count($countries) == 0) {
+			return TRUE;
 		}
-
+		
 		return FALSE;
 	}
 
@@ -664,7 +676,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 	public function plgVmOnSelectCheckShipment (VirtueMartCart &$cart) {
 		
 		$db = & JFactory::getDBO();
-		if($cart->ST)
+		if($cart->ST && $cart->ST['virtuemart_country_id'])
 		{
 			$shipto = $cart->ST;	
 			$sql = "select country_2_code from #__virtuemart_countries where virtuemart_country_id = ".$cart->ST['virtuemart_country_id'];
@@ -672,14 +684,21 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			$shipto['country'] = $db->loadResult();
 		}
 		else
-		if($cart->BT && $cart->STsameAsBT)
+		if($cart->BT && $cart->STsameAsBT && $cart->BT['virtuemart_country_id'])
 		{
 			$sql = "select country_2_code from #__virtuemart_countries where virtuemart_country_id = ".$cart->BT['virtuemart_country_id'];
 			$db->setQuery($sql);
 			$shipto = $cart->BT;	
 			$shipto['country'] = $db->loadResult();
 		}
-		if($shipto['first_name'] && $shipto['last_name'] && $shipto['address_1'] && $shipto['phone_1'] && $shipto['city'] && $shipto['zip'] && $shipto['email'])
+		// merge data from both ST and BT into shipto array
+		if (!$cart->STsameAsBT)
+		{
+			if (empty($shipto['phone_1']))
+				$shipto['phone_1'] = $cart->BT['phone_1'];
+			$shipto['email'] = $cart->BT['email'];
+		}
+		if($shipto['first_name'] && $shipto['last_name'] && $shipto['address_1'] && $shipto['phone_1'] && $shipto['city'] && $shipto['zip'] && $shipto['country'] && $shipto['email'])
 			$this->OnSelectCheck ($cart);
 		else
 		{
@@ -691,6 +710,8 @@ class plgVmShipmentAramex extends vmPSPlugin {
 				JError::raiseWarning(500,'Shipping Address: Invalid address' );
 			if(!$shipto['city'])
 				JError::raiseWarning(500,'Shipping Address: Invalid city' );
+			if(!$shipto['country'])
+				JError::raiseWarning(500,'Shipping Address: Invalid country' );
 			if(!$shipto['zip'])
 				JError::raiseWarning(500,'Shipping Address: Invalid zipcode' );
 			if(!$shipto['email'])

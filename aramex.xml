@@ -30,8 +30,8 @@
 					<option value="1">VMSHIPMENT_ARAMEX_CONFIG_SHIPMODE_LIVE_LABEL</option>
 				</field>
 				<!--<field name="generte_label" type="radio" scope="com_virtuemart" default="1" label="VMSHIPMENT_ARAMEX_CONFIG_GENERATE_LABEL" description="VMSHIPMENT_ARAMEX_CONFIG_GENERATE_LABEL_DESC">
-					<option value="0">COM_VIRTUEMART_NO</option>
-                    <option value="1">COM_VIRTUEMART_YES</option>
+						<option value="0">COM_VIRTUEMART_NO</option>
+						<option value="1">COM_VIRTUEMART_YES</option>
 				</field>-->
 				<field name="countries" multiple="true" type="vmcountries" scope="com_virtuemart" default="" label="VMSHIPMENT_ARAMEX_CONFIG_COUNTRIES" description="VMSHIPMENT_ARAMEX_CONFIG_COUNTRIES_DESC"/>
 			</fieldset>
@@ -116,5 +116,5 @@
 				<field name="shopper_body" type="textarea" default="" cols="50" rows="5" label="VMSHIPMENT_ARAMEX_CONFIG_SHOPPER_BODY_LABEL" description=""/>	
 			</fieldset>
 		</fields>
-	</vmconfig>
+    </vmconfig>
 </extension>
