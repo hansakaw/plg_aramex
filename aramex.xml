@@ -17,7 +17,7 @@
     </languages>
     <files>
 		<filename plugin="aramex">aramex.php</filename>
-		<filename plugin="aramex">index.html</filename>
+		<filename>index.html</filename>
 		<folder>language</folder>
 		<folder>wsdl</folder>
     </files>
