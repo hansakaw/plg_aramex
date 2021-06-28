@@ -6,7 +6,7 @@
     <authorUrl>http://hansakaonline.blogspot.com</authorUrl>
     <copyright>Copyright (C) 2016 Hansaka Weerasingha. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
     <description><![CDATA[<p><a href="http://aramex.com/" target="_blank">Aramex</a> is a leading global provider of comprehensive logistics and transportation solutions, our breadth of services include express courierdelivery, freight forwarding, logistics, supply chain management, e-commerce and record management services.</p>
 
 <p>This plugin simply provides integration to Aramex Web Service API to get acurate shipment rates and final shipment label upon order confirmation.</p>]]>

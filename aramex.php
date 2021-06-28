@@ -335,61 +335,61 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			}
 			else 
 			{
-					//save file
-					$filepath = JPATH_ROOT.DS.'media'.DS.'com_virtuemart'.DS.'labels'.DS;
-					mkdir($filepath, 0755, true);
-					$filename = basename($auth_call->Shipments->ProcessedShipment->ShipmentLabel->LabelURL);
-					file_put_contents($filepath.$filename, file_get_contents($auth_call->Shipments->ProcessedShipment->ShipmentLabel->LabelURL));
-					
-					$values['virtuemart_order_id'] = $order['details']['BT']->virtuemart_order_id;
-					$values['order_number'] = $order['details']['BT']->order_number;
-					$values['virtuemart_shipmentmethod_id'] = $order['details']['BT']->virtuemart_shipmentmethod_id;
-					$values['shipment_name'] = $this->renderPluginName ($method);
-					$values['order_weight'] = $weight;
-					$values['shipment_weight_unit'] = 'KG';
-					$values['shipment_cost'] = $cart->pricesUnformatted['salesPricePayment'];
-					$values['shipment_package_fee'] = $method->package_fee;
-					$values['tax_id'] = $method->tax_id;
-					$values['reference'] = $auth_call->Shipments->ProcessedShipment->ID;
-					$values['labelurl'] = $auth_call->Shipments->ProcessedShipment->ShipmentLabel->LabelURL;
-					$values['labelpath'] = $filename;
-					$this->storePSPluginInternalData ($values);
-					//Send admin email
-					$mailfrom	= $app->getCfg('mailfrom');
-					$fromname	= $app->getCfg('fromname');
-					$sitename	= $app->getCfg('sitename');
+				//save file
+				$filepath = JPATH_ROOT.DS.'media'.DS.'com_virtuemart'.DS.'labels'.DS;
+				mkdir($filepath, 0755, true);
+				$filename = basename($auth_call->Shipments->ProcessedShipment->ShipmentLabel->LabelURL);
+				file_put_contents($filepath.$filename, file_get_contents($auth_call->Shipments->ProcessedShipment->ShipmentLabel->LabelURL));
 
-					if ($method->admin_email)
-					{
-						$admin_body = $method->admin_body;
-						$admin_body = str_replace("{shopper_name}",$shipto['first_name']. ' '. $shipto['last_name'],$admin_body);
-						$admin_body = str_replace("{order_number}",$order['details']['BT']->order_number,$admin_body);
-						$admin_body = str_replace("{reference_id}",$auth_call->Shipments->ProcessedShipment->ID,$admin_body);
+				$values['virtuemart_order_id'] = $order['details']['BT']->virtuemart_order_id;
+				$values['order_number'] = $order['details']['BT']->order_number;
+				$values['virtuemart_shipmentmethod_id'] = $order['details']['BT']->virtuemart_shipmentmethod_id;
+				$values['shipment_name'] = $this->renderPluginName ($method);
+				$values['order_weight'] = $weight;
+				$values['shipment_weight_unit'] = 'KG';
+				$values['shipment_cost'] = $cart->pricesUnformatted['salesPricePayment'];
+				$values['shipment_package_fee'] = $method->package_fee;
+				$values['tax_id'] = $method->tax_id;
+				$values['reference'] = $auth_call->Shipments->ProcessedShipment->ID;
+				$values['labelurl'] = $auth_call->Shipments->ProcessedShipment->ShipmentLabel->LabelURL;
+				$values['labelpath'] = $filename;
+				$this->storePSPluginInternalData ($values);
+				//Send admin email
+				$mailfrom	= $app->getCfg('mailfrom');
+				$fromname	= $app->getCfg('fromname');
+				$sitename	= $app->getCfg('sitename');
 
-						$mail = JFactory::getMailer();
-						$mail->addRecipient($method->admin_email);
-						$mail->setSender(array($mailfrom, $fromname));
-						$mail->setSubject($method->admin_subject);
-						$mail->setBody($admin_body);
-						$mail->addAttachment($filepath.$filename);
-						$sent = $mail->Send();
-					}
-					//shopper
-					if ($shipto['email'])
-					{
-						$shopper_body = $method->shopper_body;
-						$shopper_body = str_replace("{shopper_name}",$shipto['first_name']. ' '. $shipto['last_name'],$shopper_body);
-						$shopper_body = str_replace("{order_number}",$order['details']['BT']->order_number,$shopper_body);
-						$shopper_body = str_replace("{reference_id}",$auth_call->Shipments->ProcessedShipment->ID,$shopper_body);
-	
-						$mail = JFactory::getMailer();
-						$mail->addRecipient($shipto['email']);
-						$mail->setSender(array($mailfrom, $fromname));
-						$mail->setSubject($method->shopper_subject);
-						$mail->setBody($shopper_body);
-						$mail->addAttachment($filepath.$filename);
-						$sent = $mail->Send();
-					}
+				if ($method->admin_email)
+				{
+					$admin_body = $method->admin_body;
+					$admin_body = str_replace("{shopper_name}",$shipto['first_name']. ' '. $shipto['last_name'],$admin_body);
+					$admin_body = str_replace("{order_number}",$order['details']['BT']->order_number,$admin_body);
+					$admin_body = str_replace("{reference_id}",$auth_call->Shipments->ProcessedShipment->ID,$admin_body);
+
+					$mail = JFactory::getMailer();
+					$mail->addRecipient($method->admin_email);
+					$mail->setSender(array($mailfrom, $fromname));
+					$mail->setSubject($method->admin_subject);
+					$mail->setBody($admin_body);
+					$mail->addAttachment($filepath.$filename);
+					$sent = $mail->Send();
+				}
+				//shopper
+				if ($shipto['email'])
+				{
+					$shopper_body = $method->shopper_body;
+					$shopper_body = str_replace("{shopper_name}",$shipto['first_name']. ' '. $shipto['last_name'],$shopper_body);
+					$shopper_body = str_replace("{order_number}",$order['details']['BT']->order_number,$shopper_body);
+					$shopper_body = str_replace("{reference_id}",$auth_call->Shipments->ProcessedShipment->ID,$shopper_body);
+
+					$mail = JFactory::getMailer();
+					$mail->addRecipient($shipto['email']);
+					$mail->setSender(array($mailfrom, $fromname));
+					$mail->setSubject($method->shopper_subject);
+					$mail->setBody($shopper_body);
+					$mail->addAttachment($filepath.$filename);
+					$sent = $mail->Send();
+				}
 			}
 		} 
 		catch (SoapFault $fault) 
@@ -446,7 +446,7 @@ class plgVmShipmentAramex extends vmPSPlugin {
 		$taxDisplay = is_array ($tax) ? $tax['calc_value'] . ' ' . $tax['calc_value_mathop'] : $shipinfo->tax_id;
 		$taxDisplay = ($taxDisplay == -1) ? JText::_ ('COM_VIRTUEMART_PRODUCT_TAX_NONE') : $taxDisplay;
 
-		$html = '<table class="adminlist">' . "\n";
+		$html = '<table class="adminlist table">' . "\n";
 		$html .= $this->getHtmlHeaderBE ();
 		$html .= $this->getHtmlRowBE ('WEIGHT_COUNTRIES_SHIPPING_NAME', $shipinfo->shipment_name);
 		$html .= $this->getHtmlRowBE ('WEIGHT_COUNTRIES_WEIGHT', $shipinfo->order_weight . ' ' . ShopFunctions::renderWeightUnit ($shipinfo->shipment_weight_unit));
@@ -507,94 +507,102 @@ class plgVmShipmentAramex extends vmPSPlugin {
 			//calculate weight
 			$weight = $this->getOrderWeight ($cart,'KG');
 			$params = array(
-			'ClientInfo'  	=> array(
-								'AccountCountryCode'	=> $method->account_country_code,
-								'AccountEntity'		 	=> $method->account_entity,
-								'AccountNumber'		 	=> $method->account_number,
-								'AccountPin'		 	=> $method->account_pin,
-								'UserName'			    => $method->username,
-								'Password'			    => $method->password,
-								'Version'			    => $method->version
-							),
-			'Transaction' 	=> array(
-								'Reference1'			=> $cart->customer_number, 
-								'Reference2'			=> '002',
-								'Reference3'			=> '',
-								'Reference4'			=> '',
-								'Reference5'			=> ''
-							),
-			'OriginAddress'  => array(
-								'Line1'				    => $method->account_address,
-								'Line2'				    => '',
-								'Line3'				    => '',
-								'City'				    => $method->account_city,
-								//'StateOrProvinceCode'	=> $method->account_state,
-								'PostCode'			    => $method->account_zipcode,
-								'CountryCode'			=> $method->account_country_code
-							),
-			'DestinationAddress' => array(
-    								'Line1'				=> $dest_address_1,
-    								'Line2'				=> $dest_address_2,
-    								'Line3'				=> '',
-    								'City'				=> $dest_city,
-    								'CountryCode'		=> $dest_country,
-    								'PostCode'			=> $dest_zip,
-    							),
-			'ShipmentDetails'	=> array(
-    								'PaymentType'			=> $method->payment_type,
-    								'ProductGroup'			=> $method->product_group,
-    								'ProductType'			=> $method->product_type,
-    								'PaymentOptions'		=> $method->payment_options,
-    								'Dimensions'			=> array('Length' => 10, 'Width' => 10, 'Height' => 10, 'Unit' => 'CM'),
-    								'ActualWeight' 			=> array('Value' => $weight, 'Unit' => 'KG'),
-    								'ChargeableWeight' 	    => array('Value' => $weight, 'Unit' => 'KG'),
-    								'NumberOfPieces'		=> $tq,
-    								'CurrencyCode'			=> $currency->_vendorCurrency_code_3,
-    								'DescriptionOfGoods'	=> $method->description_of_goods,
-    								'GoodsOriginCountry'	=> $method->goods_country,
-    							),
+				'ClientInfo'  	=> array(
+					'AccountCountryCode'	=> $method->account_country_code,
+					'AccountEntity'			=> $method->account_entity,
+					'AccountNumber'			=> $method->account_number,
+					'AccountPin'			=> $method->account_pin,
+					'UserName'				=> $method->username,
+					'Password'				=> $method->password,
+					'Version'				=> $method->version
+				),
+				'Transaction' 	=> array(
+					'Reference1'			=> $cart->customer_number,
+					'Reference2'			=> '002',
+					'Reference3'			=> '',
+					'Reference4'			=> '',
+					'Reference5'			=> ''
+				),
+				'OriginAddress'  => array(
+					'Line1'					=> $method->account_address,
+					'Line2'					=> '',
+					'Line3'					=> '',
+					'City'					=> $method->account_city,
+					//'StateOrProvinceCode'	=> $method->account_state,
+					'PostCode'				=> $method->account_zipcode,
+					'CountryCode'			=> $method->account_country_code
+				),
+				'DestinationAddress' => array(
+					'Line1'					=> $dest_address_1,
+					'Line2'					=> $dest_address_2,
+					'Line3'					=> '',
+					'City'					=> $dest_city,
+					'CountryCode'			=> $dest_country,
+					'PostCode'				=> $dest_zip,
+				),
+				'ShipmentDetails'	=> array(
+					'PaymentType'			=> $method->payment_type,
+					'ProductGroup'			=> $method->product_group,
+					'ProductType'			=> $method->product_type,
+					'PaymentOptions'		=> $method->payment_options,
+					'Dimensions'			=> array('Length' => 10, 'Width' => 10, 'Height' => 10, 'Unit' => 'CM'),
+					'ActualWeight'			=> array('Value' => $weight, 'Unit' => 'KG'),
+					'ChargeableWeight'		=> array('Value' => $weight, 'Unit' => 'KG'),
+					'NumberOfPieces'		=> $tq,
+					'CurrencyCode'			=> $currency->_vendorCurrency_code_3,
+					'DescriptionOfGoods'	=> $method->description_of_goods,
+					'GoodsOriginCountry'	=> $method->goods_country,
+				),
 			);
 
 			vmdebug('Rates params', $params);
 
-			if($method->ship_mode) //live mode
+			try
 			{
-				$soapClient = new SoapClient(WSDL_PATH.'rates-calculator.wsdl', array('trace' => 1));
-			}
-			else
-			{
-				$soapClient = new SoapClient(WSDL_PATH.'rates-calculator-test.wsdl', array('trace' => 1));
-			}
-
-			$results = $soapClient->CalculateRate($params);	
-			vmdebug('Rates response', $results);
-
-			if($results->HasErrors)
-			{
-				if(count($results->Notifications->Notification) > 1)
+				if($method->ship_mode) //live mode
 				{
-					foreach($results->Notifications->Notification as $noti)
+					$soapClient = new SoapClient(WSDL_PATH.'rates-calculator.wsdl', array('trace' => 1));
+				}
+				else
+				{
+					$soapClient = new SoapClient(WSDL_PATH.'rates-calculator-test.wsdl', array('trace' => 1));
+				}
+
+				$results = $soapClient->CalculateRate($params);
+				vmdebug('Rates response', $results);
+
+				if($results->HasErrors)
+				{
+					if(count($results->Notifications->Notification) > 1)
 					{
-						if(!empty($noti->Message))
-							JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);	
+						foreach($results->Notifications->Notification as $noti)
+						{
+							if(!empty($noti->Message))
+								JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);
+						}
+					}
+					else
+					{
+						foreach($results->Notifications as $noti)
+						{
+							if(!empty($noti->Message))
+								JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);
+						}
 					}
 				}
 				else
 				{
-					foreach($results->Notifications as $noti)
-					{
-						if(!empty($noti->Message))
-							JError::raiseWarning('500', 'Aramex Shipment: '.$noti->Code.' --  '.$noti->Message);	
-					}
+					$shipping_cost = $results->TotalAmount->Value;
+					if(empty($shipping_cost))
+						JError::raiseWarning('500', 'Aramex Shipment: --  Shipping cost not provided');
+					else
+						return $shipping_cost;
 				}
 			}
-			else
+			catch (SoapFault $fault)
 			{
-				$shipping_cost = $results->TotalAmount->Value;
-				if(empty($shipping_cost))
-					JError::raiseWarning('500', 'Aramex Shipment: --  Shipping cost not provided');
-				else
-					return $shipping_cost;
+				JError::raiseWarning(500, 'Aramex Shipment: '.$fault->faultstring);
+				return NULL;
 			}
 		}
 		else
